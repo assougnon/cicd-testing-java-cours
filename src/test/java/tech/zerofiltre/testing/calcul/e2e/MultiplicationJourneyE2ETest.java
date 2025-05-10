@@ -10,6 +10,8 @@ import org.junit.jupiter.api.Test;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
+import org.openqa.selenium.chrome.ChromeDriver;
+import org.openqa.selenium.chrome.ChromeOptions;
 import org.openqa.selenium.firefox.FirefoxDriver;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
@@ -18,7 +20,7 @@ import org.springframework.boot.test.context.SpringBootTest.WebEnvironment;
 import org.springframework.boot.web.server.LocalServerPort;
 
 @SpringBootTest(webEnvironment = WebEnvironment.RANDOM_PORT)
-class MultiplicationJourneyE2ETest {
+public class MultiplicationJourneyE2ETest {
 
   @LocalServerPort
   private int port;
@@ -27,16 +29,20 @@ class MultiplicationJourneyE2ETest {
   private String baseUrl;
 
   @BeforeAll
-  static void setUpFireFoxDriver() {
-    WebDriverManager.firefoxdriver().setup();
+  static void setUpChromeDriver() {
+    WebDriverManager.chromedriver().setup();
   }
 
   @BeforeEach
   void setUpWebDriver() {
-    webDriver = new FirefoxDriver();
-    baseUrl = "http://localhost:" + port + "/calculator";
+    ChromeOptions options = new ChromeOptions();
+    options.addArguments("--no-sandbox");
+    options.addArguments("--disable-dev-shm-usage");
 
+    webDriver = new ChromeDriver(options);
+    baseUrl = "http://localhost:" + port + "/calculator";
   }
+
 
   @AfterEach
   void quitWebDriver() {
@@ -46,7 +52,7 @@ class MultiplicationJourneyE2ETest {
   }
 
   @Test
-  void multiplyTwoBySixteenMustReturn32() {
+  void multiplyTwoBySixteenMustReturn32(){
 
     //GIVEN
     webDriver.get(baseUrl);
@@ -62,7 +68,7 @@ class MultiplicationJourneyE2ETest {
     submitButton.click();
 
     //THEN
-    WebDriverWait waiter = new WebDriverWait(webDriver, 5);
+    WebDriverWait waiter = new WebDriverWait(webDriver,5);
     WebElement solutionElement = waiter.until(ExpectedConditions.presenceOfElementLocated(By.id("solution")));
     String solution = solutionElement.getText();
     assertThat(solution).isEqualTo("32");
